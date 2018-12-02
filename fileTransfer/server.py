@@ -14,6 +14,7 @@ s.bind((HOST, PORT))
 
 waitingForFiles = False
 partsInQueue = 0
+fileCurrentlyProcessing = ''
 
 while(1):
     s.listen(1)
@@ -23,7 +24,7 @@ while(1):
     print('Incoming Data from: ', addr)
     fileUid = uuid.uuid4().hex
 
-    tst = open('TempReceived-'+fileUid,'wb')
+    tst = open('temp/TempReceived-'+fileUid,'wb')
     while 1:
         data = conn.recv(1024)
         if data:
@@ -33,16 +34,25 @@ while(1):
             tst.close()
 
             print('Transfer Complete.')
-            linestring = open('TempReceived-'+fileUid, errors='ignore').read()
+            dataString = open('temp/TempReceived-'+fileUid, errors='ignore').read()
 
-            if linestring.startswith('NewFile'):
-                if Path('TempReceived-'+fileUid).is_file():
-                    os.remove('TempReceived-'+fileUid)
-                print(linestring)
+            if not waitingForFiles:
+                if dataString.startswith('error'):
+                    if Path('temp/TempReceived-'+fileUid).is_file():
+                        os.remove('temp/TempReceived-'+fileUid)
+                    print('ERROR')
+                elif dataString.startswith('NewFile'):
+                    if Path('temp/TempReceived-'+fileUid).is_file():
+                        os.remove('temp/TempReceived-'+fileUid)
+                    print('-------------- '+dataString.split(',')[0]+' --------------')
+                    print('Filename: '+dataString.split(',')[1].split('>')[1])
+                    print('Parts: '+dataString.split(',')[2].split('>')[1])
+                    waitingForFiles = True
+                    partsInQueue = int(dataString.split(',')[2].split('>')[1])
             else:
-                filename = linestring.split(':')[-1]
+                filename = dataString.split(':')[-1]
                 if Path('filename').is_file():
                     os.remove(filename)
-                os.rename('TempReceived-'+fileUid, filename)
+                os.rename('temp/TempReceived-'+fileUid, filename)
                 print('Synced: '+filename)
             break

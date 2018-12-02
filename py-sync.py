@@ -30,10 +30,10 @@ class sync:
 		print("Files in folder 2 that aren't in folder 1:\n{}".format(self.diffs[1]))
 
 	def printInfo(self):
-		print('\nOriginal contents of folder 1:\n{}'.format(self.folder1.contents))
+		print('\nOriginal contents of folder 1:\n{}'.format(self.folder1.printContents))
 		print("\nFiles in folder 1 that aren't in folder 2:\n{}".format(self.diffs[0]))
 
-		print('\nOriginal contents of folder 2:\n{}'.format(self.folder2.contents))
+		print('\nOriginal contents of folder 2:\n{}'.format(self.folder2.printContents))
 		print("Files in folder 2 that aren't in folder 1:\n{}".format(self.diffs[1]))
 				
 	def check(self, folder1, folder2):
@@ -65,7 +65,7 @@ class sync:
 					if i.contents == []:
 						folder1.removeFolder(i)
 
-		return [folder1, folder2]
+		return [folder1.contents, folder2.contents]
 		
 				
 
@@ -74,6 +74,7 @@ class folder:
 		self.contents = os.listdir(path)
 		self.path = path
 		self.name = name
+		# print('Pre- contents of {}: {}'.format(self.name, self.contents))
 		for i in self.contents:
 			if '.' not in i:
 				x = self.contents.index(i)
@@ -81,11 +82,32 @@ class folder:
 			else:
 				x = self.contents.index(i)
 				self.contents[x] = file('{}\{}'.format(path, i), i)
+		# print('Post- contents of {}: {}'.format(self.name, self.contents))
+
+	def __str__(self):
+		return self.name
+		
+		'''
+		ans = '{}\n'.format(self.name)
+		for i in self.contents:
+			if type(i) is file:
+				ans += '\t{}\n'.format(i.name)
+			elif type(i) is folder:
+				ans += i.__str__()
+		return ans
+		'''
+		'''
+	def __repr__(self):
+		return self.name
+		'''
 
 	def printContents(self):
 		print('\nContents of folder {}\n'.format(self.name))
 		for i in self.contents:
-			print('\t{}\n'.format(i))
+			if type(i) is file:
+				print('\t{}\n'.format(i.name))
+			elif type(i) is folder:
+				i.printContents()
 
 	def removeFolder(self, f):
 		try:
@@ -101,18 +123,6 @@ class folder:
 		except ValueError:
 			print('Error. There is no file {} in folder {}'.format(f.name, self.name))
 
-	def __str__(self):
-		return self.name
-		'''
-		ans = '{}\n'.format(self.name)
-		for i in self.contents:
-			if type(i) is file:
-				ans += '\t{}\n'.format(i.name)
-			elif type(i) is folder:
-				ans += i.__str__()
-		return ans
-		'''
-
 class file:
 	def __init__(self, path, name):
 		self.path = path
@@ -126,5 +136,8 @@ dir2 = 'C:\sync\dir2'
 
 folder1 = folder(dir1, 'folder1')
 folder2 = folder(dir1, 'folder2')
+
+# folder1.printContents()
+
 temp = sync(folder1, folder2)
-# temp.printInfo()
+temp.printInfo()
