@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+# server
+import socket
+import sys
+import os
+
+HOST = ''    # Symbolic name meaning all available interfaces
+PORT = 50007 # Arbitrary non-privileged port
+ 
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind((HOST, PORT))
+
+while(1):
+    s.listen(1)
+    # print type(s.accept())
+    conn, addr = s.accept()
+    print('Incoming File from: ', addr)
+ 
+    tst = open('TempReceived','wb')
+    while 1:
+        data = conn.recv(1024)
+        if data:
+            tst.write(data)
+        else:
+            conn.close()
+            tst.close()
+            print('Transfer Complete.')
+            linestring = open('TempReceived', errors='ignore').read()
+            filename = linestring.split(':')[-1]
+            os.remove(filename)
+            os.rename('TempReceived', filename)
+            print('Synced: '+filename)
+            break
+
+Client -------------------------------------------------------------
+
+#!/usr/bin/env python3
+# client
+import socket
+import sys
+ 
+HOST  = '10.0.0.200' # The target IP address
+PORT  = 50007 # The target port as used by the server
+DATA  = open('Jackass 3.mkv','r')
+BDATA = DATA.read()
+ 
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+ 
+s.connect((HOST, PORT))
+s.send(BDATA+':'+DATA.name) #Put the pattern you want to send here.
+s.close()

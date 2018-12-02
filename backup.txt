@@ -1,0 +1,155 @@
+		# returns number of lines in a txt file fname
+	def countLines(self, fname):
+		with open(fname) as f:
+			for i, l in enumerate(f):
+				pass
+				f.close()
+			return i + 1
+    
+    def showFolderTree(self, path,show_files=False,indentation=2,file_output=False):
+		"""
+		Shows the content of a folder in a tree structure.
+		path -(string)- path of the root folder we want to show.
+		show_files -(boolean)-  Whether or not we want to see files listed.
+								Defaults to False.
+		indentation -(int)- Indentation we want to use, defaults to 2.   
+		file_output -(string)-  Path (including the name) of the file where we want
+								to save the tree.
+		"""
+
+
+		tree = []
+
+		if not show_files:
+			for root, dirs, files in os.walk(path):
+				level = root.replace(path, '').count(os.sep)
+				indent = ' '*indentation*(level)
+				tree.append('{}{}/'.format(indent,os.path.basename(root)))
+
+		if show_files:
+			for root, dirs, files in os.walk(path):
+				level = root.replace(path, '').count(os.sep)
+				indent = ' '*indentation*(level)
+				tree.append('{}{}/'.format(indent,os.path.basename(root)))    
+				for f in files:
+					subindent=' ' * indentation * (level+1)
+					tree.append('{}{}'.format(subindent,f))
+
+		if file_output:
+			output_file = open(file_output,'w')
+			for line in tree:
+				output_file.write(line)
+				output_file.write('\n')
+		else:
+			# Default behaviour: print on screen.
+			for line in tree:
+				print(line)
+    
+    def writeFolders(self, path, name, t=''):
+		t += '\t'
+		f = open(self.fname, 'a')
+		f.write('{}{}\n'.format(t, name))
+		# seperate folders and files
+		ids = self.getIDs(path)
+		folders = ids[0]
+		files = ids[1]
+		for i in files:
+			f.write('{}{}\n'.format(t, i))
+		for k in folders:
+			self.writeFolders('{}\{}'.format(path, k), k, t)
+    
+    def outputF(self, path1='', path2=''):
+		print('Outputing file...')
+		# path1 = '{}\{}'.format(self.path1, path1)
+		# path2 = '{}\{}'.format(self.path2, path2)
+		path1 = self.path1
+		path2 = self.path2
+		# seperate folders and files in each directory
+		ids1 = self.getIDs(path1)
+		ids2 = self.getIDs(path2)
+		folders1 = ids1[0]
+		files1 = ids1[1]
+		folders2 = ids2[0]
+		files2 = ids2[1]
+
+		now = datetime.datetime.now()
+		self.fname = 'output\output' + now.strftime(' %Y-%m-%d %H %M') + '.txt'
+		f = open(self.fname, 'w')
+		f.write('Contents of Directory 1:\n')
+		for i in files1:
+			f.write('\t{}\n'.format(i))
+		for k in folders1:
+			self.writeFolders('{}\{}'.format(path1, k), k, '\t')
+		f.close()
+		print('File completed succesfully.')
+
+    # corrects differences in two directories path1 and path2
+	def correct(self, path1='', path2=''):
+		path1 = '{}/{}'.format(self.path1, path1)
+		path2 = '{}/{}'.format(self.path2, path2)
+		print('Correcting directories...')
+		# initialize array of paths to files to copy
+		# [[file to copy, location to copy to], [...]]
+		ftc = []
+
+		# seperate folders and files in each directory
+		ids1 = self.getIDs(path1)
+		ids2 = self.getIDs(path2)
+		folders1 = ids1[0]
+		files1 = ids1[1]
+		folders2 = ids2[0]
+		files2 = ids2[1]
+
+		# array of [files in dir1 that aren't in dir2, files in dir2 that aren't in dir1]
+		difs = self.getDs(path1, path2)
+		if difs == 0:
+			ftc.append([path2, path1])
+		elif difs == 1:
+			ftc.append([path1, path2])
+		else:
+			pass
+		for i in difs:
+			pass
+
+    def writeFolders(self, path, name, t=''):
+		t += '\t'
+		f = open(self.fname, 'a')
+		f.write('{}{}\n'.format(t, name))
+		# seperate folders and files
+		ids = self.getIDs(path)
+		folders = ids[0]
+		files = ids[1]
+		for i in files:
+			f.write('{}{}\n'.format(t, i))
+		for k in folders:
+			self.writeFolders('{}\{}'.format(path, k), k, t)	
+
+    	# input path to directory, outputs [array of folders, array of files]
+	def getIDs(self, path):
+		print('Scanning directory {}'.format(path))
+		ids = []
+		dir = os.listdir(path)
+		for i in dir:
+			if '.' not in i:
+				ids.append(i)
+				dir.remove(i)
+		return ids, dir
+
+	# gets differences between two directories, returns [files in dir1 that aren't in dir2, files in dir2 that aren't in dir1]
+	# returns 0 of path1 doesn't exist, 1 if path2 doesn't exist
+	def getDs(self, path1, path2):
+		print('Getting differences between {} and {}'.format(path1, path2))
+		try:
+			tdir1 = os.listdir(path1)
+		except FileNotFoundError:
+			return 0
+		try:
+			tdir2 = os.listdir(path2)
+		except FileNotFoundError:
+			return 1
+		for i in tdir1:
+			for k in tdir2:
+				if i == k:
+					tdir1.pop(tdir1.index(i))
+					tdir2.pop(tdir2.index(k))
+		return [tdir1, tdir2]

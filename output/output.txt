@@ -1,0 +1,14 @@
+dir1/
+  oof.txt
+  dir2/
+    gay.txt
+    reeeeeeeeeeeeee.txt
+    yeet.txt
+    queef/
+      gay.txt
+      reeeeeeeeeeeeee.txt
+      yeet.txt
+  queef/
+    gay.txt
+    reeeeeeeeeeeeee.txt
+    yeet.txt
