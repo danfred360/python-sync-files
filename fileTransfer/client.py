@@ -22,12 +22,13 @@ print(fileLocation)
 fileParts = str(int(math.ceil(os.path.getsize(fileLocation)/float(100000000))))
 fileName = ntpath.basename(fileLocation)
 
-HOST = '10.0.0.200' # The target IP address
+HOST = '10.0.0.254' # The target IP address
 PORT = 12480 # The target port as used by the server
 DATA = 'error'
 if args.newfile:
     DATA = 'NewFile,filename>'+fileName+',parts>'+fileParts
     splitFile.splitFileIntoParts(fileLocation, fileName)
+
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
@@ -48,3 +49,4 @@ if args.newfile:
     DATA = 'FileCompleted,filename>'+fileName+',parts>'+fileParts
     s.send(DATA) #Put the pattern you want to send here.
     s.close()
+    os.system('rm tempUL/*'+regex.sub('', fileName))

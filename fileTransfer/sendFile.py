@@ -1,6 +1,7 @@
 import socket
 import sys
 import os
+import time
 
 def sendFileToServer(fileToSend, fileName, HOST, PORT):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -1,3 +1,23 @@
+def check(self, f1, f2):
+		folder1 = f1
+		folder2 = f2
+		ans = []
+
+		for i in folder1.contents:
+			if type(i) is file:
+				if folder2.contains(i):
+					folder1.removeFile(i)
+			elif type(i) is folder:
+				if folder2.contains(i):
+					if folder2.posOf(i) == 'null':
+						break
+					k = self.check(i, folder2.contents[folder2.posOf(i)])
+					if k == []:
+						folder1.removeFolder(i)
+					else:
+						folder1.contents[folder1.contents.index(i)] = k
+		return folder1
+
 		# returns number of lines in a txt file fname
 	def countLines(self, fname):
 		with open(fname) as f:
